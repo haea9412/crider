@@ -183,7 +183,7 @@ resource "aws_s3_bucket_public_access_block" "public_access" {
   restrict_public_buckets = true
 }
 
-resource "aws_acm_certificate_validation" "api" {
-  certificate_arn         = aws_acm_certificate.cert.arn
-  validation_record_fqdns = [for record in aws_route53_record.api_validation : record.fqdn]
-}
+# resource "aws_acm_certificate_validation" "api" {
+#   certificate_arn         = aws_acm_certificate.cert.arn
+#   validation_record_fqdns = [for record in aws_route53_record.api_validation : record.fqdn]
+# }
