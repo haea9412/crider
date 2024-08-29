@@ -22,7 +22,7 @@ name: 'Terraform'
 on:
   push:
     branches:
-    - "main"
+    - "feat-ha"
   pull_request:
 
 env:
@@ -35,7 +35,7 @@ jobs:
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
-    environment: production
+    environment: github
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
