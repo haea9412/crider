@@ -30,17 +30,22 @@ env:
 
 permissions:
   contents: read
-
 jobs:
-  terraform:
-    name: 'Terraform'
+  terraform-push:
     runs-on: ubuntu-latest
-    environment: github
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
-        shell: bash
+        working-directory: ./practice
+# jobs:
+#   terraform:
+#     name: 'Terraform'
+#     runs-on: ubuntu-latest
+#     environment: github
+
+#     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+#     defaults:
+#       run:
+#         shell: bash
 
     steps:
     # Checkout the repository to the GitHub Actions runner
