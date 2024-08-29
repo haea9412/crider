@@ -21,10 +21,10 @@ resource "aws_lb" "alb" {
         var.tags)
 }
 
-resource "aws_acm_certificate" "cert" {
-  domain_name       = var.cert_domain
-  validation_method = "DNS"
-}
+# resource "aws_acm_certificate" "cert" {
+#   domain_name       = var.cert_domain
+#   validation_method = "DNS"
+# }
 
 resource "aws_lb_listener" "lb-listener-443" {
   load_balancer_arn = aws_lb.alb.arn
@@ -76,7 +76,7 @@ resource "aws_lb_target_group" "lb-target-group" {
 }
 
 resource "aws_lb_target_group_attachment" "lb-target-group-attachment" {
-  count = length(var.instance_ids)
+  # count = length(var.instance_ids)
   target_group_arn = aws_lb_target_group.lb-target-group.arn
   target_id        = var.instance_ids[count.index]
   port             = var.port

@@ -48,7 +48,7 @@ module "rds" {
   vpc_id = module.vpc.vpc_id
   servicename             = var.servicename
   db_instance_identifier  = "rds-crider" 
-  subnet_ids               = module.vpc.db_subnet_ids
+  subnet_ids              = module.vpc.db_subnet_ids
   engine_version          = "8.0"
   instance_class          = "db.t3.micro"
   master_username         = "admin"
@@ -79,6 +79,8 @@ module "ecr" {
     "Environment" = "development"
     "Service"     = "service"
   }
+
+ 
 }
 
 
@@ -90,5 +92,7 @@ module "alb" {
   instance_ids = [module.eks.nodegroups.id]
   vpc_id = module.vpc.vpc_id
   sg_allow_comm_list = ["0.0.0.0/0"]
-
+  subnet_ids              = module.vpc.db_subnet_ids
+  stage                   = var.stage
+  servicename             = var.servicename  
 }

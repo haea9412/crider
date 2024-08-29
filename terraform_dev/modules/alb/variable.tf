@@ -1,15 +1,13 @@
 variable "stage" {
     type  = string
-    default = "dev"
 }
 variable "servicename" {
     type  = string
-    default = "jung9546"
 }
 variable "tags" {
   type = map(string)
   default = {
-    "name" = "jung9546-alb"
+    "name" = "crider-alb"
   }
 }
 
@@ -25,7 +23,6 @@ variable "public" {
 
 variable "subnet_ids" {
     type  = list
-    default = []
 }
 
 variable "aws_s3_lb_logs_name" {
