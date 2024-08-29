@@ -35,9 +35,9 @@ variable "idle_timeout" {
     type  = string
     default = "60"
 }
-variable "certificate_arn" {
-    type  = string
-}
+# variable "certificate_arn" {
+#     type  = string
+# }
 variable "port" {
     type  = string
     default = "80"
