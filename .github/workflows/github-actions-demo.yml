@@ -83,7 +83,7 @@ jobs:
     needs: terraform
     env:
       AWS_REGION: "ap-southeast-2"
-      S3_BUCKET: "crider-terraform-state"
+      S3_BUCKET: "crider-terraform"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
