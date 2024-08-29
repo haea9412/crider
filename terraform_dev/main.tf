@@ -6,11 +6,11 @@ terraform {
   required_version = ">= 1.0.0, < 2.0.0"
 
   backend "s3" {
-    bucket         = "crider-terraform-state"
+    bucket         = "crider-terraform"
     key            = "dev/terraform-ci/terraform.tfstate"
     region         = "ap-southeast-2"
     encrypt        = true
-    dynamodb_table = "crider-terraform-state"
+    dynamodb_table = "crider-terraform"
   }
 }
 

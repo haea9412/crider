@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: "ap-southeast-2"
-      S3_BUCKET: "crider-terraform-state"
-      DYNAMODB_TABLE: "crider-terraform-state"
+      S3_BUCKET: "crider-terraform"
+      DYNAMODB_TABLE: "crider-terraform"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
