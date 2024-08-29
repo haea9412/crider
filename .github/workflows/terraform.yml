@@ -26,7 +26,7 @@ on:
   pull_request:
 
 env:
-  AWS_REGION: ap-northeast-2   # set this to your preferred AWS region, e.g. us-west-1
+  AWS_REGION: ap-southeast-2   # set this to your preferred AWS region, e.g. us-west-1
 
 permissions:
   contents: read
@@ -66,7 +66,7 @@ jobs:
     # Generates an execution plan for Terraform
     - name: Terraform Plan
       run: |
-        cd ../../terraform_dev
+        cd ./../../terraform_dev
         terraform plan -input=false
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
