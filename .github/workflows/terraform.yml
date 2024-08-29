@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./practice
+        working-directory: ./terraform_dev
 # jobs:
 #   terraform:
 #     name: 'Terraform'
