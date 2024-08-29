@@ -12,6 +12,7 @@ terraform {
     encrypt        = true
     dynamodb_table = "crider-terraform"
   }
+  
 }
 
 
@@ -78,4 +79,17 @@ module "ecr" {
     "Environment" = "development"
     "Service"     = "service"
   }
+}
+
+
+
+module "alb" {
+  source = "./modules/alb"
+  cert_domain = ""
+  aws_s3_lb_logs_name = module.alb.state_logs.id
+  certificate_arn = module.alb.cert.arn
+  instance_ids = module.eks.nodegroups.id
+  vpc_id = module.vpc.vpc_id
+  sg_allow_comm_list = ["0.0.0.0/0"]
+
 }
