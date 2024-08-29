@@ -78,7 +78,7 @@ resource "aws_lb_target_group" "lb-target-group" {
 resource "aws_lb_target_group_attachment" "lb-target-group-attachment" {
   # count = length(var.instance_ids)
   target_group_arn = aws_lb_target_group.lb-target-group.arn
-  target_id        = var.instance_ids[count.index]
+  target_id        = var.instance_ids[0]
   port             = var.port
   
   availability_zone = var.availability_zone
