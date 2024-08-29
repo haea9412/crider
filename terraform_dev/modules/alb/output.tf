@@ -12,6 +12,6 @@ output "state_logs" {
   value = aws_s3_bucket.state_logs
 }
 
-output "cert" {
-  value = aws_acm_certificate.cert.arn
-}
+# output "cert" {
+#   value = aws_acm_certificate.cert.arn
+# }
