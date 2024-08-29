@@ -108,7 +108,7 @@ jobs:
 
   backend_destroy:
     runs-on: ubuntu-latest
-    needs: backend_setup
+    # needs: backend_setup
     if: github.event_name == 'workflow_dispatch'  # 수동 실행일 때만 실행
     env:
       AWS_REGION: "ap-southeast-2"
