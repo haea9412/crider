@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: "ap-southeast-2"
-      S3_BUCKET: "crider-terraform"
-      DYNAMODB_TABLE: "crider-terraform"
+      S3_BUCKET: "crider-terraform-dev"
+      DYNAMODB_TABLE: "crider-terraform-dev"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -83,7 +83,7 @@ jobs:
     needs: terraform
     env:
       AWS_REGION: "ap-southeast-2"
-      S3_BUCKET: "crider-terraform"
+      S3_BUCKET: "crider-terraform-dev"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -112,7 +112,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch'  # 수동 실행일 때만 실행
     env:
       AWS_REGION: "ap-southeast-2"
-      S3_BUCKET: "crider-terraform"
+      S3_BUCKET: "crider-terraform-dev"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
