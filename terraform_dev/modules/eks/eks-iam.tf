@@ -16,7 +16,7 @@ data "aws_iam_policy_document" "assume_role" {
 
 # IAM 역할을 생성
 resource "aws_iam_role" "aws_iam_role_cluster" {
-  name               = "eks-cluster-crider-role"
+  name               = "crider-cluster-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
