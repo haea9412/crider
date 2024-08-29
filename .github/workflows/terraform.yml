@@ -1,82 +1,143 @@
-# name: GitHub Actions Demo
-# run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-# on: [push]
-# jobs:
-#   Explore-GitHub-Actions:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-#       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-#       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-#       - name: Check out repository code
-#         uses: actions/checkout@v4
-#       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-#       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-#       - name: List files in the repository
-#         run: |
-#           ls ${{ github.workspace }}
-#       - run: echo "🍏 This job's status is ${{ job.status }}."
-
-name: 'Terraform'
+name: Terraform Workflow
 
 on:
   push:
     branches:
-    - "feat-ha"
-  pull_request:
+      - feat-sh
+  workflow_dispatch:  # 수동 실행을 지원합니다
 
-env:
-  AWS_REGION: ap-southeast-2   # set this to your preferred AWS region, e.g. us-west-1
-
-permissions:
-  contents: read
 jobs:
-  terraform-push:
+  terraform:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./terraform_dev
-# jobs:
-#   terraform:
-#     name: 'Terraform'
-#     runs-on: ubuntu-latest
-#     environment: github
-
-#     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-#     defaults:
-#       run:
-#         shell: bash
-
+    env:
+      AWS_REGION: "ap-southeast-2"
+      S3_BUCKET: "crider-terraform"
+      DYNAMODB_TABLE: "crider-terraform"
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # AWS 리소스를 이용하기 위해서 추가
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.8.0
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: 
-        terraform init
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli jq
 
-    # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terraform Format
-      run: terraform fmt -check
+      - name: Terraform Init and Apply
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          check_bucket_exists() {
+            BUCKET_NAME="$1"
+            output=$(aws s3 ls "s3://$BUCKET_NAME" 2>&1)
+            if echo "$output" | grep -q "NoSuchBucket"; then
+                echo "false"
+            elif echo "$output" | grep -q "Access Denied"; then
+                echo "access denied"
+            else
+                echo "true"
+            fi
+          }
+          check_dynamodb_exists() {
+            TABLE_NAME="$1"
+            output=$(aws dynamodb describe-table --table-name "$TABLE_NAME" 2>&1)
+            if echo "$output" | grep -q "ResourceNotFoundException"; then
+                echo "false"
+            elif echo "$output" | grep -q "AccessDeniedException"; then
+                echo "access denied"
+            else
+                echo "true"
+            fi
+          }
+          BUCKET_EXISTS=$(check_bucket_exists "$S3_BUCKET")
+          DYNAMODB_EXISTS=$(check_dynamodb_exists "$DYNAMODB_TABLE")
+          if [ -d backend ]; then
+              cd backend
+          else
+              echo "Backend 디렉토리가 존재하지 않습니다. 종료합니다..."
+              exit 1
+          fi
+          if [ "$BUCKET_EXISTS" = "true" ] && [ "$DYNAMODB_EXISTS" = "true" ]; then
+              echo "S3 버킷과 DynamoDB 테이블이 모두 존재합니다. Terraform init을 건너뜁니다."
+          elif [ "$BUCKET_EXISTS" = "access denied" ] || [ "$DYNAMODB_EXISTS" = "access denied" ]; then
+              echo "리소스 확인 시 접근이 거부되었습니다. AWS 자격 증명 및 권한을 확인하십시오."
+              exit 1
+          else
+              echo "하나 이상의 리소스가 존재하지 않으므로 Terraform을 초기화합니다."
+              terraform init
+              terraform plan
+              terraform apply -auto-approve
+          fi
+          cd ../terraform_dev
+          terraform init -backend-config="region=${{ env.AWS_REGION }}" -backend-config="bucket=${{ env.S3_BUCKET }}" -backend-config="key=dev/terraform-ci/terraform.tfstate"
+          terraform plan -input=false
+          terraform apply -auto-approve -input=false
 
-    # Generates an execution plan for Terraform
-    - name: Terraform Plan
-      run: 
-        terraform plan -input=false
+  backend_setup:
+    runs-on: ubuntu-latest
+    needs: terraform
+    env:
+      AWS_REGION: "ap-southeast-2"
+      S3_BUCKET: "crider-terraform-state"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      # On push to "main", build or change infrastructure according to Terraform configuration files
-      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
-    - name: Terraform Apply
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.8.0
 
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli jq
+
+      - name: Terraform Init for Backend
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd terraform_dev
+          terraform init -backend-config="region=${{ env.AWS_REGION }}" -backend-config="bucket=${{ env.S3_BUCKET }}" -backend-config="key=dev/terraform-ci/terraform.tfstate"
+
+  backend_destroy:
+    runs-on: ubuntu-latest
+    needs: backend_setup
+    if: github.event_name == 'workflow_dispatch'  # 수동 실행일 때만 실행
+    env:
+      AWS_REGION: "ap-southeast-2"
+      S3_BUCKET: "crider-terraform-state"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.8.0
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli jq
+
+      - name: Terraform Destroy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]; then
+              echo "파괴가 확인되었습니다. Terraform destroy 작업을 진행합니다."
+              cd terraform_dev
+              terraform init -backend-config="region=${{ env.AWS_REGION }}" -backend-config="bucket=${{ env.S3_BUCKET }}" -backend-config="key=dev/terraform-ci/terraform.tfstate"
+              terraform destroy -auto-approve
+          else
+              echo "파괴가 확인되지 않았습니다. 종료합니다..."
+              exit 1
+          fi

@@ -6,11 +6,11 @@ terraform {
   required_version = ">= 1.0.0, < 2.0.0"
 
   backend "s3" {
-    bucket         = "crider-terraform-state"
+    bucket         = "crider-terraform"
     key            = "dev/terraform-ci/terraform.tfstate"
     region         = "ap-southeast-2"
     encrypt        = true
-    dynamodb_table = "crider-terraform-state"
+    dynamodb_table = "crider-terraform"
   }
 }
 
@@ -67,9 +67,9 @@ module "eks" {
 # # ECR 리포지토리 생성
 module "ecr" {
   source = "./modules/ecr"
-  
   ecr_repository          = "crider-repo" 
-  ecr_allow_account_arns  = ["arn:aws:iam::381492185710:user/010510", "arn:aws:iam::381492185710:user/950418"]  
+  # ecr_allow_account_arns  = ["arn:aws:iam::381492185710:user/010510", "arn:aws:iam::381492185710:user/950418"]  
+  ecr_allow_account_arns  = ["arn:aws:iam::795149720653:user/950418", "arn:aws:iam::795149720653:user/010510"]  
   image_tag_mutability    = "IMMUTABLE"  
   image_scan_on_push      = true  
   stage                   = var.stage
