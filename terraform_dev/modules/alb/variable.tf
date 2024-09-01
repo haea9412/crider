@@ -71,7 +71,7 @@ variable "sg_allow_comm_list" {
 }
 variable "target_type" {
     type = string
-    default = "instance"
+    default = "ip"
 }
 variable "availability_zone" {
     type = string
@@ -87,3 +87,4 @@ variable "cert_domain" {
     type = string
     default = ""
 }
+

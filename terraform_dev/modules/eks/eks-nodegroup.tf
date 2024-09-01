@@ -5,11 +5,17 @@ resource "aws_eks_node_group" "eks-node-group" {
   subnet_ids      = var.private_subnet_ids
 
   scaling_config {
-    desired_size = 3
+    desired_size = 1
     max_size     = 5
     min_size     = 1
   }
 
+  instance_types = ["t3.medium"]
+  
+  tags = {
+    Name = "eks-node-instance"
+    Environment = "dev"  # 추가적인 태그를 원하는 대로 설정
+  }
   update_config {
     max_unavailable = 1
   }

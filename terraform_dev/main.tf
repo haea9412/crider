@@ -8,7 +8,7 @@ terraform {
   backend "s3" {
     bucket         = "crider-terraform-develop"
     key            = "dev/terraform-ci/terraform.tfstate"
-    region         = "ap-southeast-2"
+    region         = "ap-northeast-2"
     encrypt        = true
     dynamodb_table = "crider-terraform-develop"
 
@@ -42,7 +42,7 @@ module "vpc" {
 }
 
 
-
+/*
 module "rds" {
   source = "./modules/rds"
   vpc_id = module.vpc.vpc_id
@@ -57,6 +57,7 @@ module "rds" {
   #allowed_cidrs           = module.vpc.public_subnet_ids
 
 }
+*/
 
 module "eks" {
   source = "./modules/eks"  
@@ -66,6 +67,8 @@ module "eks" {
 
 }
 
+
+/*
 # # ECR 리포지토리 생성
 module "ecr" {
   source = "./modules/ecr"
@@ -82,7 +85,7 @@ module "ecr" {
 
  
 }
-
+*/
 
 module "alb" {
   source = "./modules/alb"
@@ -95,4 +98,7 @@ module "alb" {
   subnet_ids              = module.vpc.db_subnet_ids
   stage                   = var.stage
   servicename             = var.servicename  
+  
+  depends_on = [module.eks]
+
 }
