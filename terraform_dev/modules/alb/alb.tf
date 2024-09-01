@@ -6,7 +6,7 @@ resource "aws_lb" "alb" {
   security_groups    = [aws_security_group.sg-alb.id]
   subnets            = var.subnet_ids
 
-  enable_deletion_protection = true
+  enable_deletion_protection = false
 
   idle_timeout = var.idle_timeout
 
@@ -51,13 +51,14 @@ resource "aws_acm_certificate_validation" "cert_validation" {
 
 # Route 53 레코드 - ALB를 도메인에 매핑
 resource "aws_route53_record" "alb-record" {
-  count = var.domain != "" ? 1:0
+
+  depends_on = [aws_lb.alb]
+  name    = "back.mangooopeach.store" 
   zone_id = "Z02544243U0HTDIMXTAD"
-  name    = "back.mangooopeach.store"
   type    = "A"
   alias {
     name                   = aws_lb.alb.dns_name
-    zone_id                = "Z02544243U0HTDIMXTAD"
+    zone_id                = aws_lb.alb.zone_id
     evaluate_target_health = true
   }
 }
