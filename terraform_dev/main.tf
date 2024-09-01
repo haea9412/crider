@@ -42,20 +42,19 @@ module "vpc" {
 
 
 
-module "rds" {
-  source = "./modules/rds"
-  vpc_id = module.vpc.vpc_id
-  servicename             = var.servicename
-  db_instance_identifier  = "rds-crider" 
-  subnet_ids               = module.vpc.db_subnet_ids
-  engine_version          = "8.0"
-  instance_class          = "db.t3.micro"
-  master_username         = "admin"
-  master_password         = "password123"
-  db_name                 = "cirderdb"
-  #allowed_cidrs           = module.vpc.public_subnet_ids
-
-}
+# module "rds" {
+#   source = "./modules/rds"
+#   vpc_id = module.vpc.vpc_id
+#   servicename             = var.servicename
+#   db_instance_identifier  = "rds-crider" 
+#   subnet_ids               = module.vpc.db_subnet_ids
+#   engine_version          = "8.0"
+#   instance_class          = "db.t3.micro"
+#   master_username         = "admin"
+#   master_password         = "password123"
+#   db_name                 = "cirderdb"
+#   #allowed_cidrs           = module.vpc.public_subnet_ids
+# }
 
 module "eks" {
   source = "./modules/eks"  
@@ -83,13 +82,14 @@ module "ecr" {
 
 
 
-module "alb" {
-  source = "./modules/alb"
-  cert_domain = ""
-  aws_s3_lb_logs_name = module.alb.state_logs.id
-  certificate_arn = module.alb.cert.arn
-  instance_ids = module.eks.nodegroups.id
-  vpc_id = module.vpc.vpc_id
-  sg_allow_comm_list = ["0.0.0.0/0"]
+# module "alb" {
+#   source = "./modules/alb"
+#   cert_domain = ""
+#   aws_s3_lb_logs_name = "crider-logs"
+#   # certificate_arn = module.alb.cert.arn
+#   # instance_ids = module.eks.nodegroups.id
+#   vpc_id = module.vpc.vpc_id
+#   sg_allow_comm_list = ["0.0.0.0/0"]
+#   subnet_ids = module.vpc.private_subnet_ids
 
-}
+# }
