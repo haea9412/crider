@@ -1,0 +1,16 @@
+# Terraform lock and state files
+
+# For backend folder
+backend/.terraform.lock.hcl
+backend/.terraform/
+backend/terraform.tfstate
+backend/terraform.tfstate.backup
+
+# For terraform_dev folder (if any Terraform files exist here)
+terraform_dev/.terraform.lock.hcl
+terraform_dev/.terraform/
+terraform_dev/terraform.tfstate
+terraform_dev/terraform.tfstate.backup
+
+backend2/
+terraform_dev2/
