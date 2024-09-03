@@ -63,7 +63,7 @@ module "vpc" {
 
 module "eks" {
   source = "./modules/eks"  
-  servicename             = "${var.servicename}-cluster001"
+  servicename             = var.servicename
   private_subnet_ids      = module.vpc.private_subnet_ids
   
 
