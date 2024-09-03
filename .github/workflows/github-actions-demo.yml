@@ -89,6 +89,12 @@ jobs:
           aws eks --region ${AWS_REGION} update-kubeconfig --name ${CLUSTER_NAME}
           kubectl create namespace argocd || { echo "Namespace 'argocd' already exists. Skipping..."; }
           kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+          
+          # install argoCD CLI
+          VERSION=$(curl -L -s https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION)
+          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/v$VERSION/argocd-linux-amd64
+          sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+          rm argocd-linux-amd64
 
           # Wait for ArgoCD pods to be running
           # kubectl wait --namespace argocd --for=condition=ready pod -l app.kubernetes.io/part-of=argocd --timeout=5m
@@ -100,7 +106,7 @@ jobs:
 
           # Update GitHub Actions environment variable
           echo "github.repository: $github.repository" 
-          echo "GH_PERSONAL_ACCESS_TOKEN: $GH_PERSONAL_ACCESS_TOKEN" 
+          # echo "GH_PERSONAL_ACCESS_TOKEN: $GH_PERSONAL_ACCESS_TOKEN" 
 
           curl -X PATCH \
             -H "Authorization: token $GH_PERSONAL_ACCESS_TOKEN" \
