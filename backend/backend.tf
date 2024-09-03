@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "terraform_state" { 
-  bucket = "test-unique"
+  bucket = "test001-unique"
 }
 
 resource "aws_s3_bucket_versioning" "enabled" { 

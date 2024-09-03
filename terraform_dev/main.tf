@@ -5,14 +5,14 @@ provider "aws" {
 terraform {
   required_version = ">= 1.0.0, < 2.0.0"
 
-  # backend "s3" {
-  #   bucket         = "test001-unique"
-  #   key            = "dev/terraform-ci/terraform.tfstate"
-  #   region         = "ap-southeast-2"
-  #   encrypt        = true
-  #   dynamodb_table = "test001-unique"
+  backend "s3" {
+    bucket         = "test001-unique"
+    key            = "dev/terraform-ci/terraform.tfstate"
+    region         = "ap-southeast-2"
+    encrypt        = true
+    dynamodb_table = "test001-unique"
 
-  # }
+  }
   
 }
 
