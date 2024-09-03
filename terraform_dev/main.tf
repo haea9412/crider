@@ -10,7 +10,7 @@ terraform {
     key            = "dev/terraform-ci/terraform.tfstate"
     region         = "ap-southeast-2"
     encrypt        = true
-    dynamodb_table = "test001-unique"
+    dynamodb_table = "testdb-unique"
 
   }
   

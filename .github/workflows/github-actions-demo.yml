@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: "ap-southeast-2"
-      S3_BUCKET: "crider-dev"
-      DYNAMODB_TABLE: "crider-dev"
+      S3_BUCKET: "test001-unique"
+      DYNAMODB_TABLE: "testdb-unique"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
