@@ -3,9 +3,20 @@ data "aws_iam_policy_document" "assume_role" {
   statement {
     effect = "Allow"
 
+    # principals {
+    #   type        = "AWS"
+    #   identifiers = [
+    #     # "arn:aws:iam::795149720653:user/010510",
+    #     # "arn:aws:iam::795149720653:user/950418"
+    #     "arn:aws:iam::381492185710:user/010510",
+    #     "arn:aws:iam::381492185710:user/950418"
+    #   ]
+    # }
     principals {
       type        = "Service"
-      identifiers = ["eks.amazonaws.com"]
+      identifiers = [
+        "eks.amazonaws.com"
+      ]
     }
 
     actions = ["sts:AssumeRole"]
@@ -16,7 +27,7 @@ data "aws_iam_policy_document" "assume_role" {
 
 # IAM 역할을 생성
 resource "aws_iam_role" "aws_iam_role_cluster" {
-  name               = "eks-cluster-crider-role"
+  name               = "crider-cluster-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 

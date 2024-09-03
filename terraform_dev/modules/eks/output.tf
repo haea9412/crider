@@ -6,6 +6,7 @@ output "kubeconfig-certificate-authority-data" {
   value = aws_eks_cluster.eks-cluster.certificate_authority[0].data
 }
 
-output "nodegroups" {
+output "nodegroups"{
   value = aws_eks_node_group.eks-node-group
+  
 }

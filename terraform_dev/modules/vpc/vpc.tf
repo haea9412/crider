@@ -15,35 +15,47 @@ resource "aws_subnet" "public-az1" {
   cidr_block              = var.subnet_public_az1
   map_public_ip_on_launch = true
   availability_zone       = element(var.az, 0)
-  tags = merge(tomap({
-         Name = "aws-subnet-${var.stage}-${var.servicename}-pub-az1"}), 
-        var.tags)
+  tags = merge(
+    tomap({
+      Name = "aws-subnet-${var.stage}-${var.servicename}-pub-az1",
+      "kubernetes.io/role/elb" = "1"   # 새로운 태그 추가
+    }), 
+    var.tags
+  )
   depends_on = [aws_vpc.aws-vpc]
 }
 
-# # 퍼블릭 서브넷 - AZ2
-# resource "aws_subnet" "public-az2" {
-#   vpc_id                  = aws_vpc.aws-vpc.id
-#   cidr_block              = var.subnet_public_az2
-#   map_public_ip_on_launch = true
-#   availability_zone       = element(var.az, 1)
-#   tags = merge(tomap({
-#          Name = "aws-subnet-${var.stage}-${var.servicename}-pub-az2"}), 
-#         var.tags)
-#   depends_on = [aws_vpc.aws-vpc]
-# }
+# 퍼블릭 서브넷 - AZ2
+resource "aws_subnet" "public-az2" {
+  vpc_id                  = aws_vpc.aws-vpc.id
+  cidr_block              = var.subnet_public_az2
+  map_public_ip_on_launch = true
+  availability_zone       = element(var.az, 1)
+  tags = merge(
+    tomap({
+      Name = "aws-subnet-${var.stage}-${var.servicename}-pub-az2",
+      "kubernetes.io/role/elb" = "1"   # 새로운 태그 추가
+    }), 
+    var.tags
+  )
+  depends_on = [aws_vpc.aws-vpc]
+}
 
-# # 퍼블릭 서브넷 - AZ3
-# resource "aws_subnet" "public-az3" {
-#   vpc_id                  = aws_vpc.aws-vpc.id
-#   cidr_block              = var.subnet_public_az3
-#   map_public_ip_on_launch = true
-#   availability_zone       = element(var.az, 2)
-#   tags = merge(tomap({
-#          Name = "aws-subnet-${var.stage}-${var.servicename}-pub-az3"}), 
-#         var.tags)
-#   depends_on = [aws_vpc.aws-vpc]
-# }
+# 퍼블릭 서브넷 - AZ3
+resource "aws_subnet" "public-az3" {
+  vpc_id                  = aws_vpc.aws-vpc.id
+  cidr_block              = var.subnet_public_az3
+  map_public_ip_on_launch = true
+  availability_zone       = element(var.az, 2)
+  tags = merge(
+    tomap({
+      Name = "aws-subnet-${var.stage}-${var.servicename}-pub-az3",
+      "kubernetes.io/role/elb" = "1"   # 새로운 태그 추가
+    }), 
+    var.tags
+  )
+  depends_on = [aws_vpc.aws-vpc]
+}
 
 # 프라이빗 서브넷 - AZ1
 resource "aws_subnet" "private-az1" {
@@ -52,7 +64,9 @@ resource "aws_subnet" "private-az1" {
   map_public_ip_on_launch = false
   availability_zone       = element(var.az, 0)
   tags = merge(tomap({
-         Name = "aws-subnet-${var.stage}-${var.servicename}-pri-az1"}), 
+         Name = "aws-subnet-${var.stage}-${var.servicename}-pri-az1",
+          "kubernetes.io/role/internal-elb" = "1" 
+        }), 
         var.tags)
   depends_on = [aws_vpc.aws-vpc]
 }
@@ -64,7 +78,9 @@ resource "aws_subnet" "private-az2" {
   map_public_ip_on_launch = false
   availability_zone       = element(var.az, 1)
   tags = merge(tomap({
-         Name = "aws-subnet-${var.stage}-${var.servicename}-pri-az2"}), 
+         Name = "aws-subnet-${var.stage}-${var.servicename}-pri-az2",
+          "kubernetes.io/role/internal-elb" = "1" 
+        }), 
         var.tags)
   depends_on = [aws_vpc.aws-vpc]
 }
@@ -76,7 +92,9 @@ resource "aws_subnet" "private-az3" {
   map_public_ip_on_launch = false
   availability_zone       = element(var.az, 2)
   tags = merge(tomap({
-         Name = "aws-subnet-${var.stage}-${var.servicename}-pri-az3"}), 
+         Name = "aws-subnet-${var.stage}-${var.servicename}-pri-az3",
+          "kubernetes.io/role/internal-elb" = "1" 
+        }), 
         var.tags)
   depends_on = [aws_vpc.aws-vpc]
 }

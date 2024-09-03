@@ -7,12 +7,6 @@ variable "servicename" {
 }
 
 ##ecr
-variable "ecr_repository" {
-  description = "The name of the ECR repository"
-  type        = string
-}
-
-
 variable "ecr_allow_account_arns" {
   type        = list(string)
   description = "Allow account to ECR pull"
