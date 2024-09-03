@@ -76,7 +76,13 @@ jobs:
           cd ../terraform_dev
           terraform init -backend-config="region=${{ env.AWS_REGION }}" -backend-config="bucket=${{ env.S3_BUCKET }}" -backend-config="key=dev/terraform-ci/terraform.tfstate"
           terraform plan -input=false
-          terraform apply -auto-approve -input=false
+          iamexist=$(aws iam get-role --role-name crider-cluster-role001)
+          if iamexist; then
+            terraform import aws_iam_role.existing_role crider-cluster-role001
+            terraform apply -auto-approve -input=false
+            exit 1
+          elif iamexist = "terraform import aws_iam_role.existing_role crider-cluster-role001"
+            terraform apply -auto-approve -input=false
 
       - name: Set up ArgoCD
         env:
