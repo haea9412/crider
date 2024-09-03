@@ -1,0 +1,178 @@
+name: Terraform Workflow
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch: # 수동 실행을 지원합니다
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: "ap-southeast-2"
+      S3_BUCKET: "crider-dev"
+      DYNAMODB_TABLE: "crider-dev"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.8.0
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli jq
+
+      - name: Terraform Init and Apply
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          check_bucket_exists() {
+            BUCKET_NAME="$1"
+            output=$(aws s3 ls "s3://$BUCKET_NAME" 2>&1)
+            if echo "$output" | grep -q "NoSuchBucket"; then
+                echo "false"
+            elif echo "$output" | grep -q "Access Denied"; then
+                echo "access denied"
+            else
+                echo "true"
+            fi
+          }
+          check_dynamodb_exists() {
+            TABLE_NAME="$1"
+            output=$(aws dynamodb describe-table --table-name "$TABLE_NAME" 2>&1)
+            if echo "$output" | grep -q "ResourceNotFoundException"; then
+                echo "false"
+            elif echo "$output" | grep -q "AccessDeniedException"; then
+                echo "access denied"
+            else
+                echo "true"
+            fi
+          }
+          BUCKET_EXISTS=$(check_bucket_exists "$S3_BUCKET")
+          DYNAMODB_EXISTS=$(check_dynamodb_exists "$DYNAMODB_TABLE")
+          if [ -d backend ]; then
+              cd backend
+          else
+              echo "Backend 디렉토리가 존재하지 않습니다. 종료합니다..."
+              exit 1
+          fi
+          if [ "$BUCKET_EXISTS" = "true" ] && [ "$DYNAMODB_EXISTS" = "true" ]; then
+              echo "S3 버킷과 DynamoDB 테이블이 모두 존재합니다. Terraform init을 건너뜁니다."
+          elif [ "$BUCKET_EXISTS" = "access denied" ] || [ "$DYNAMODB_EXISTS" = "access denied" ]; then
+              echo "리소스 확인 시 접근이 거부되었습니다. AWS 자격 증명 및 권한을 확인하십시오."
+              exit 1
+          else
+              echo "하나 이상의 리소스가 존재하지 않으므로 Terraform을 초기화합니다."
+              terraform init
+              terraform plan
+              terraform apply -auto-approve
+          fi
+          cd ../terraform_dev
+          terraform init -backend-config="region=${{ env.AWS_REGION }}" -backend-config="bucket=${{ env.S3_BUCKET }}" -backend-config="key=dev/terraform-ci/terraform.tfstate"
+          terraform plan -input=false
+          terraform apply -auto-approve -input=false
+
+      - name: Set up ArgoCD
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          AWS_REGION: "ap-southeast-2" # 직접 지정된 AWS 지역
+          CLUSTER_NAME: "crider-service-cluster"
+        run: |
+          aws eks --region ${AWS_REGION} update-kubeconfig --name ${CLUSTER_NAME}
+          kubectl create namespace argocd || { echo "Namespace 'argocd' already exists. Skipping..."; }
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+          # Wait for ArgoCD pods to be running
+          # kubectl wait --namespace argocd --for=condition=ready pod -l app.kubernetes.io/part-of=argocd --timeout=5m
+          kubectl get pods -n argocd
+
+          # Fetch ArgoCD password from Kubernetes secret
+          argo_password=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d)
+          echo "ArgoCD Password: $argo_password" 
+
+          # Update GitHub Actions environment variable
+          echo "github.repository: $github.repository" 
+          echo "GH_PERSONAL_ACCESS_TOKEN: $GH_PERSONAL_ACCESS_TOKEN" 
+
+          curl -X PATCH \
+            -H "Authorization: token $GH_PERSONAL_ACCESS_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d "{\"value\":\"$argo_password\"}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/variables/ARGOCD_PASSWORD"
+            
+
+          # Update ArgoCD service to LoadBalancer type
+          kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+
+  backend_setup:
+    runs-on: ubuntu-latest
+    needs: terraform
+    env:
+      AWS_REGION: "ap-southeast-2"
+      S3_BUCKET: "crider-dev"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.8.0
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli jq
+
+      - name: Terraform Init for Backend
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd terraform_dev
+          terraform init -backend-config="region=${{ env.AWS_REGION }}" -backend-config="bucket=${{ env.S3_BUCKET }}" -backend-config="key=dev/terraform-ci/terraform.tfstate"
+
+  backend_destroy:
+    runs-on: ubuntu-latest
+    needs: backend_setup
+    env:
+      AWS_REGION: "ap-southeast-2"
+      S3_BUCKET: "crider-dev"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.8.0
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli jq
+
+      - name: Terraform Destroy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DESTROY: ${{ secrets.DESTROY }}
+        run: |
+          if [ "${DESTROY}" == "yes" ]; then
+            echo "파괴가 확인되었습니다. Terraform destroy 작업을 진행합니다."
+            cd terraform_dev
+            terraform init -backend-config="region=${{ env.AWS_REGION }}" -backend-config="bucket=${{ env.S3_BUCKET }}" -backend-config="key=dev/terraform-ci/terraform.tfstate"
+            terraform destroy -auto-approve
+          else
+            echo "DESTROY 환경 변수가 'yes'가 아닙니다. Terraform destroy 작업을 생략합니다."
+            exit 0
+          fi
