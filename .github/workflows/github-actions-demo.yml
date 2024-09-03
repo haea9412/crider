@@ -84,7 +84,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           AWS_REGION: "ap-southeast-2" # 직접 지정된 AWS 지역
-          CLUSTER_NAME: "crider-service-cluster"
+          CLUSTER_NAME: "crider-service-cluster001"
         run: |
           aws eks --region ${AWS_REGION} update-kubeconfig --name ${CLUSTER_NAME}
           kubectl create namespace argocd || { echo "Namespace 'argocd' already exists. Skipping..."; }
