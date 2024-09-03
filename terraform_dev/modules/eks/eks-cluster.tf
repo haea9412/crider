@@ -21,9 +21,9 @@ resource "aws_eks_cluster" "eks-cluster" {
 
 resource "aws_cloudwatch_log_group" "ekscluster-cluster-log-group" {
 
-  name              = "/aws/eks/${var.servicename}/cluster"
+  name              = "/aws/eks/${var.servicename}/cluster001"
   retention_in_days = 7
-
+  # force_destroy = true
 
 }
 
