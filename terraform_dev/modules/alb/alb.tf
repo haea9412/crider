@@ -11,7 +11,7 @@ resource "aws_lb" "alb" {
   idle_timeout = var.idle_timeout
 
   access_logs {
-    bucket  = "crider-lb-logs-"
+    bucket  = "crider-lb-logs"
     prefix  = "dev"
     enabled = true
   }
@@ -189,7 +189,10 @@ resource "aws_s3_bucket_policy" "state_logs_policy" {
         {
         Effect    = "Allow",
         Principal = {
-          AWS = "arn:aws:iam::783225319266:root"  // 자신의 AWS 계정 ID
+          AWS = [
+          "arn:aws:iam::381492185710:user/010510",
+          "arn:aws:iam::381492185710:user/950418"
+        ]
         },
         Action    = "s3:PutObject",
         Resource  = "arn:aws:s3:::${aws_s3_bucket.state_logs.id}/dev/*"
@@ -205,7 +208,6 @@ resource "aws_s3_bucket_policy" "state_logs_policy" {
     ]
   })
 }
-
 
 resource "aws_s3_bucket_versioning" "enabled" { 
   bucket = aws_s3_bucket.state_logs.id 
