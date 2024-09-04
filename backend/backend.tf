@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "terraform_state" { 
-  bucket = "test002-unique"
+  bucket = "test001-unique"
 }
 
 resource "aws_s3_bucket_versioning" "enabled" { 
@@ -25,7 +25,7 @@ resource "aws_s3_bucket_public_access_block" "public_access" {
 }
 resource "aws_dynamodb_table" "terraform_lock" {
 
-  name         = "test002-unique"
+  name         = "test001-unique"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
   attribute {
