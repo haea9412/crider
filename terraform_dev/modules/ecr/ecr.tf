@@ -1,12 +1,12 @@
 # ECR 리포지토리 생성
 resource "aws_ecr_repository" "ecr-repository" {
-  name                 = "aws-ecr-${var.stage}-${var.servicename}"
+  name                 = "aws-ecr-${var.servicename}-001"
   image_tag_mutability = var.image_tag_mutability
   image_scanning_configuration {
     scan_on_push = var.image_scan_on_push
   }
   tags = merge(tomap({
-         Name = "aws-ecr-${var.stage}-${var.servicename}"}),
+         Name = "aws-ecr-${var.servicename}-001"}),
         var.tags)
 }
 
