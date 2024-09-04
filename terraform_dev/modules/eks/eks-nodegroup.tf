@@ -31,7 +31,7 @@ resource "aws_eks_node_group" "eks-node-group" {
 }
 
 resource "aws_iam_role" "aws-iam-role-node-group" {
-  name = "crider-node-group-role2"
+  name = "crider-node-group-role1"
   
   assume_role_policy = jsonencode({
     Statement = [{
