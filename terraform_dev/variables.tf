@@ -13,12 +13,12 @@ variable "servicename" {
 variable "region" {
   description = "Name of the region"
   type = string
-  default = "ap-southeast-2"
+  default = "ap-northeast-2"
 }
 
 variable "az" {
   description = "Name of the az"
   type = list
-  default = ["ap-southeast-2a", "ap-southeast-2b", "ap-southeast-2c"]
+  default = ["ap-northeast-2a", "ap-northeast-2b", "ap-northeast-2c"]
 }
 

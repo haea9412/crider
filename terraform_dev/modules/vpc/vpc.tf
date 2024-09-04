@@ -15,35 +15,38 @@ resource "aws_subnet" "public-az1" {
   cidr_block              = var.subnet_public_az1
   map_public_ip_on_launch = true
   availability_zone       = element(var.az, 0)
-  tags = merge(tomap({
-         Name = "aws-subnet-${var.stage}-${var.servicename}-pub-az1"}), 
-        var.tags)
+  tags = {
+    Name = "aws-subnet-pub-az1"
+    "kubernetes.io/role/elb" = "1"
+  }
   depends_on = [aws_vpc.aws-vpc]
 }
 
-# # 퍼블릭 서브넷 - AZ2
-# resource "aws_subnet" "public-az2" {
-#   vpc_id                  = aws_vpc.aws-vpc.id
-#   cidr_block              = var.subnet_public_az2
-#   map_public_ip_on_launch = true
-#   availability_zone       = element(var.az, 1)
-#   tags = merge(tomap({
-#          Name = "aws-subnet-${var.stage}-${var.servicename}-pub-az2"}), 
-#         var.tags)
-#   depends_on = [aws_vpc.aws-vpc]
-# }
+# 퍼블릭 서브넷 - AZ2
+resource "aws_subnet" "public-az2" {
+  vpc_id                  = aws_vpc.aws-vpc.id
+  cidr_block              = var.subnet_public_az2
+  map_public_ip_on_launch = true
+  availability_zone       = element(var.az, 1)
+  tags = {
+    Name = "aws-subnet-pub-az2"
+    "kubernetes.io/role/elb" = "1"
+  }
+  depends_on = [aws_vpc.aws-vpc]
+}
 
-# # 퍼블릭 서브넷 - AZ3
-# resource "aws_subnet" "public-az3" {
-#   vpc_id                  = aws_vpc.aws-vpc.id
-#   cidr_block              = var.subnet_public_az3
-#   map_public_ip_on_launch = true
-#   availability_zone       = element(var.az, 2)
-#   tags = merge(tomap({
-#          Name = "aws-subnet-${var.stage}-${var.servicename}-pub-az3"}), 
-#         var.tags)
-#   depends_on = [aws_vpc.aws-vpc]
-# }
+# 퍼블릭 서브넷 - AZ3
+resource "aws_subnet" "public-az3" {
+  vpc_id                  = aws_vpc.aws-vpc.id
+  cidr_block              = var.subnet_public_az3
+  map_public_ip_on_launch = true
+  availability_zone       = element(var.az, 2)
+  tags = {
+    Name = "aws-subnet-pub-az3"
+    "kubernetes.io/role/elb" = "1"
+  }
+  depends_on = [aws_vpc.aws-vpc]
+}
 
 # 프라이빗 서브넷 - AZ1
 resource "aws_subnet" "private-az1" {
@@ -51,9 +54,10 @@ resource "aws_subnet" "private-az1" {
   cidr_block              = var.subnet_private_az1
   map_public_ip_on_launch = false
   availability_zone       = element(var.az, 0)
-  tags = merge(tomap({
-         Name = "aws-subnet-${var.stage}-${var.servicename}-pri-az1"}), 
-        var.tags)
+  tags = {
+    Name = "aws-subnet-pri-az1"
+    "kubernetes.io/role/internal-elb" = "1"
+  }
   depends_on = [aws_vpc.aws-vpc]
 }
 
@@ -63,9 +67,10 @@ resource "aws_subnet" "private-az2" {
   cidr_block              = var.subnet_private_az2
   map_public_ip_on_launch = false
   availability_zone       = element(var.az, 1)
-  tags = merge(tomap({
-         Name = "aws-subnet-${var.stage}-${var.servicename}-pri-az2"}), 
-        var.tags)
+  tags = {
+    Name = "aws-subnet-pri-az2"
+    "kubernetes.io/role/internal-elb" = "1"
+  }
   depends_on = [aws_vpc.aws-vpc]
 }
 
@@ -75,9 +80,11 @@ resource "aws_subnet" "private-az3" {
   cidr_block              = var.subnet_private_az3
   map_public_ip_on_launch = false
   availability_zone       = element(var.az, 2)
-  tags = merge(tomap({
-         Name = "aws-subnet-${var.stage}-${var.servicename}-pri-az3"}), 
-        var.tags)
+  tags = {
+    Name = "aws-subnet-pri-az3"
+    "kubernetes.io/role/internal-elb" = "1"
+  }
+       
   depends_on = [aws_vpc.aws-vpc]
 }
 
@@ -148,15 +155,15 @@ resource "aws_route_table_association" "public-az1" {
   route_table_id = aws_route_table.aws-rt-pub.id
 }
 
-# resource "aws_route_table_association" "public-az2" {
-#   subnet_id      = aws_subnet.public-az2.id
-#   route_table_id = aws_route_table.aws-rt-pub.id
-# }
+resource "aws_route_table_association" "public-az2" {
+  subnet_id      = aws_subnet.public-az2.id
+  route_table_id = aws_route_table.aws-rt-pub.id
+}
 
-# resource "aws_route_table_association" "public-az3" {
-#   subnet_id      = aws_subnet.public-az3.id
-#   route_table_id = aws_route_table.aws-rt-pub.id
-# }
+resource "aws_route_table_association" "public-az3" {
+  subnet_id      = aws_subnet.public-az3.id
+  route_table_id = aws_route_table.aws-rt-pub.id
+}
 
 # 프라이빗 서브넷과 프라이빗 라우트 테이블 연동
 resource "aws_route_table_association" "private-az1" {

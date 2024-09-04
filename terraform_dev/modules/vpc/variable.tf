@@ -32,15 +32,15 @@ variable "subnet_public_az1" {
   description = "CIDR block for the public subnet in AZ1"
 }
 
-# variable "subnet_public_az2" {
-#   type = string
-#   description = "CIDR block for the public subnet in AZ2"
-# }
+variable "subnet_public_az2" {
+  type = string
+  description = "CIDR block for the public subnet in AZ2"
+}
 
-# variable "subnet_public_az3" {
-#   type = string
-#   description = "CIDR block for the public subnet in AZ3"
-# }
+variable "subnet_public_az3" {
+  type = string
+  description = "CIDR block for the public subnet in AZ3"
+}
 
 # Private Subnets
 variable "subnet_private_az1" {

@@ -5,7 +5,9 @@ data "aws_iam_policy_document" "assume_role" {
 
     principals {
       type        = "Service"
-      identifiers = ["eks.amazonaws.com"]
+      identifiers = [
+        "eks.amazonaws.com"
+      ]
     }
 
     actions = ["sts:AssumeRole"]
@@ -16,8 +18,18 @@ data "aws_iam_policy_document" "assume_role" {
 
 # IAM 역할을 생성
 resource "aws_iam_role" "aws_iam_role_cluster" {
-  name               = "crider-cluster-role"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+  name               = "crider-cluster-role2"
+  # assume_role_policy = data.aws_iam_policy_document.assume_role.json
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+            Service = "eks.amazonaws.com"
+        }
+    }]
+  })
 }
 
 # IAM 역할에 AWS에서 제공하는 다양한 정책을 연결
