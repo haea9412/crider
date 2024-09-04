@@ -192,7 +192,7 @@ resource "aws_s3_bucket_policy" "state_logs_policy" {
           AWS = [
           "arn:aws:iam::381492185710:user/010510",
           "arn:aws:iam::381492185710:user/950418",
-          "arn:aws:iam::600734575887:root" 
+          "arn:aws:iam::783225319266:root" 
         ]
         },
         Action    = "s3:PutObject",
