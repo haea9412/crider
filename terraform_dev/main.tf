@@ -6,11 +6,11 @@ terraform {
   required_version = ">= 1.0.0, < 2.0.0"
 
   backend "s3" {
-    bucket         = "test002-unique"
+    bucket         = "test001-unique"
     key            = "dev/terraform-ci/terraform.tfstate"
-    region         = "ap-northeast-2"
+    region         = "ap-southeast-2"
     encrypt        = true
-    dynamodb_table = "test002-unique"
+    dynamodb_table = "test001-unique"
 
   }
   
@@ -84,8 +84,6 @@ module "ecr" {
     "Environment" = "development"
     "Service"     = "service"
   }
-
- 
 }
 
 
